@@ -3,6 +3,10 @@ package de.htwberlin.dbtech.aufgaben.ue02;
 
 /*
   @author Ingo Classen
+  @author Ibrahim Nickel
+  @author Theo Brunner
+  @author Dennis Habekost
+  @author Mehmet Dogan
  */
 
 import de.htwberlin.dbtech.exceptions.*;
