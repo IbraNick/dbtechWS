@@ -13,6 +13,7 @@ import de.htwberlin.dbtech.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
@@ -96,43 +97,25 @@ public class VersicherungJdbc implements IVersicherungJdbc {
         }
     }
     /**
-     * Prüft, ob Produkt noch nicht existiert.
+     * Prüft, ob Produkt oder Kunde noch nicht existiert.
      *
-     * @param produktId Id des Produktes
+     * @param id Id des Produktes oder des Kunden
      * @throws DataException wenn fehler bei sql
      * return true, wenn Produkt noch nicht existiert sonst false
      * */
-    private boolean ProduktExistiertNicht(Integer produktId) {
+    private boolean existiertNicht(Integer id, String tabelle) {
         PreparedStatement statement = null;
         ResultSet resultSet = null;
         try {
-            statement = useConnection().prepareStatement("SELECT * FROM produkt WHERE id = ?");
-            statement.setInt(1, produktId);
+            statement = useConnection().prepareStatement("SELECT * FROM " + tabelle + " WHERE id = ?");
+            statement.setInt(1, id);
             resultSet = statement.executeQuery();
             return !(resultSet.next());
         }catch (SQLException e){
             throw new DataException(e);
         }
     }
-    /**
-     * Prüft ob Kunde noch nicht existiert.
-     *
-     * @param kundenId Id des Produktes
-     * @throws DataException wenn fehler bei sql
-     * return true, wenn Kunde noch nicht existiert sonst false
-     * */
-    private boolean KundeExistiertNicht(Integer kundenId) {
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-        try {
-            statement = useConnection().prepareStatement("SELECT * FROM kunde WHERE id = ?");
-            statement.setInt(1, kundenId);
-            resultSet = statement.executeQuery();
-            return !(resultSet.next());
-        }catch (SQLException e){
-            throw new DataException(e);
-        }
-    }
+
     /**
      * Prüft, ob Datum in der Vergangenheit.
      *
@@ -153,10 +136,10 @@ public class VersicherungJdbc implements IVersicherungJdbc {
             if(VertragExistiertBereits(id)){
                 throw new VertragExistiertBereitsException(id);
             }
-            if(ProduktExistiertNicht(produktId)){
+            if(existiertNicht(produktId, "produkt")){
                 throw new ProduktExistiertNichtException(produktId);
             }
-            if(KundeExistiertNicht(kundenId)){
+            if(existiertNicht(kundenId, "kunde")){
                 throw new KundeExistiertNichtException(kundenId);
             }
             statement = useConnection().prepareStatement("insert into Vertrag(ID, Produkt_FK, Kunde_FK, Versicherungsbeginn, Versicherungsende) values (?, ?, ?, ?, ?)");
